@@ -1,0 +1,11 @@
+name: Docker
+run-name: Publish Docker tag
+on: [push]
+jobs:
+  Publish-Docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Build the tagged Docker image
+        run: docker build -t tasky .
