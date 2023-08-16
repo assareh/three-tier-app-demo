@@ -9,6 +9,8 @@ locals {
   private_key_filename = "${var.private_key_path}${local.project_name}-ssh-key.pem"
 }
 
+data "aws_caller_identity" "current" {}
+
 data "aws_availability_zones" "available" {}
 
 module "vpc" {

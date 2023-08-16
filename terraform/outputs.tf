@@ -3,6 +3,10 @@ output "backups_s3_bucket_url" {
   value       = "https://${aws_s3_bucket.backups.id}.s3.${aws_s3_bucket.backups.region}.amazonaws.com"
 }
 
+output "caller" {
+  value = data.aws_caller_identity.current.arn
+}
+
 output "cluster_endpoint" {
   description = "Endpoint for EKS control plane"
   value       = module.eks.cluster_endpoint

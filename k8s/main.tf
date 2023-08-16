@@ -14,6 +14,8 @@ provider "aws" {
   region = data.tfe_outputs.infra.values.region
 }
 
+data "aws_caller_identity" "current" {}
+
 data "aws_eks_cluster" "default" {
   name = data.tfe_outputs.infra.values.cluster_name
 }
@@ -100,6 +102,10 @@ data "kubernetes_service" "tasky" {
   metadata {
     name = "tasky-service-loadbalancer"
   }
+}
+
+output "caller" {
+  value = data.aws_caller_identity.current.arn
 }
 
 output "lb_address" {
