@@ -13,8 +13,8 @@ variable "mongodb_username" {
   default     = "username"
 }
 
-variable "my_ip" {
-  description = "My IP address to allow"
+variable "my_ips" {
+  description = "My IP addresses to allow"
 }
 
 variable "private_key_path" {
