@@ -14,7 +14,7 @@ variable "mongodb_username" {
 }
 
 variable "my_ip" {
-  description = "My IP address"
+  description = "My IP address to allow"
 }
 
 variable "private_key_path" {
