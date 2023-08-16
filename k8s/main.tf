@@ -103,5 +103,8 @@ data "kubernetes_service" "tasky" {
 }
 
 output "lb_address" {
-  value = data.kubernetes_service.tasky.status.0.load_balancer.0.ingress.0.hostname
+  value = try(data.kubernetes_service.tasky.status.0.load_balancer.0.ingress.0.hostname, "")
+  depends_on = [
+    data.kubernetes_service.tasky
+  ]
 }
