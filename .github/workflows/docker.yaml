@@ -6,7 +6,7 @@
 #
 ---
 name: Docker
-run-name: Publish Docker tag
+run-name: Create container registry by @${{ github.actor }}
 on:
   push:
     branches:
@@ -59,61 +59,30 @@ jobs:
           run: ${{ steps.create-run.outputs.run_id }}
           comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
 
+---
+name: Docker
+run-name: Publish Docker tag to registry by @${{ github.actor }}
+on:
+  push:
+    branches:
+    ## RECOMMENDED: Change for your target branch, or include branches you wish to trigger this workflow file.
+      - main
+    ## RECOMMENDED: Specify to only run this workflow file when terraform configuration has changed.
+    paths:
+      - 'docker/*' ## Example: 'terraform/**.tf'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# name: Docker
-# run-name: Publish Docker tag
-# # on: [push]
-# jobs:
-#   Publish-Docker:
-#     runs-on: self-hosted
-#     steps:
-#       - name: Check out repository code
-#         uses: actions/checkout@v3
-#       - name: Build the tagged Docker image
-#         working-directory: ./docker
-#         run: docker build -t tasky .
-
-
-  # retrieve-secret:
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   steps:
-  #     - name: Retrieve secret from Vault
-  #       uses: hashicorp/vault-action@v2.4.0
-  #         with:
-  #           method: jwt
-  #           url: <Vault URL>
-  #           role: <Role name>
-  #           secrets: <Secret-Path>
-
-  #     - name: Use secret from Vault
-  #       run: |
-  #         # This step has access to the secret retrieved above; see hashicorp/vault-action for more details.
+jobs:
+  Publish-Docker-Tag:
+    runs-on: self-hosted
+    env:
+      DOCKER_TAG: "${{ vars.ECR_URL }}"
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Build the tagged Docker image
+        working-directory: ./docker
+        run: |
+            docker build -t tasky .
+            aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ${{ vars.DOCKER_TAG }}
+            docker tag tasky:latest ${{ vars.DOCKER_TAG }}
+            docker push ${{ vars.DOCKER_TAG }}
