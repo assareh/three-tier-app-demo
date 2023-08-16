@@ -1,9 +1,13 @@
 variable "TFC_ORG" {}
-variable "TFC_WORKSPACE" {}
 
 data "tfe_outputs" "infra" {
   organization = var.TFC_ORG
-  workspace    = var.TFC_WORKSPACE
+  workspace    = "infra"
+}
+
+data "tfe_outputs" "docker" {
+  organization = var.TFC_ORG
+  workspace    = "docker"
 }
 
 provider "aws" {
@@ -24,3 +28,47 @@ provider "kubernetes" {
   token                  = data.aws_eks_cluster_auth.default.token
 }
 
+resource "kubernetes_deployment" "tasky" {
+  metadata {
+    name = "tasky-deployment"
+    labels = {
+      app = "tasky"
+    }
+  }
+
+  spec {
+    replicas = 2
+
+    selector {
+      match_labels = {
+        app = "tasky"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "tasky"
+        }
+      }
+
+      spec {
+        container {
+          image = data.tfe_outputs.docker.values.container_registry_url
+          name  = "tasky"
+          env {
+            name  = "MONGODB_URI"
+            value = "mongodb://${data.tfe_outputs.infra.values.mongo_username}:${data.tfe_outputs.infra.values.mongo_password}@${data.tfe_outputs.infra.values.db_instance_private_ip}:27017"
+          }
+          env {
+            name  = "SECRET_KEY"
+            value = "secret123"
+          }
+          port {
+            container_port = 8080
+          }
+        }
+      }
+    }
+  }
+}
