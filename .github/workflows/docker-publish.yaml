@@ -1,0 +1,27 @@
+---
+name: Docker Publish
+run-name: Publish Docker tag to registry by @${{ github.actor }}
+on:
+  push:
+    branches:
+    ## RECOMMENDED: Change for your target branch, or include branches you wish to trigger this workflow file.
+      - main
+    ## RECOMMENDED: Specify to only run this workflow file when terraform configuration has changed.
+    paths:
+      - 'docker/**' ## Example: 'terraform/**.tf'
+
+jobs:
+  Publish-Docker-Tag:
+    runs-on: self-hosted
+    env:
+      DOCKER_TAG: "${{ vars.ECR_URL }}"
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Build the tagged Docker image
+        working-directory: ./docker
+        run: |
+            docker build -t tasky .
+            aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ${{ env.DOCKER_TAG }}
+            docker tag tasky:latest ${{ env.DOCKER_TAG }}/tasky:latest
+            docker push ${{ env.DOCKER_TAG }}/tasky:latest
