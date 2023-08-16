@@ -5,8 +5,8 @@
 # **IF** the set paths contain files that have changed.
 #
 ---
-name: Docker
-run-name: Create container registry by @${{ github.actor }}
+name: Terraform
+run-name: Create app infrastructure by @${{ github.actor }}
 on:
   push:
     branches:
@@ -14,7 +14,7 @@ on:
       - main
     ## RECOMMENDED: Specify to only run this workflow file when terraform configuration has changed.
     paths:
-      - 'docker/terraform/**.tf' ## Example: 'terraform/**.tf'
+      - 'terraform/**.tf' ## Example: 'terraform/**.tf'
 
 ## RECOMMENDED: Limit apply runs job / workflow to a single concurrency group at a time.
 ## link: https://docs.github.com/en/actions/using-jobs/using-concurrency
@@ -35,8 +35,8 @@ jobs:
     env:
       TF_CLOUD_ORGANIZATION: "${{ vars.TF_CLOUD_ORGANIZATION }}" ## Name of your existing Terraform Cloud Organization. RECOMMENDED: use repository variables. ex. "${{ vars.TF_CLOUD_ORGANIZATION }}"
       TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}" ## Terraform Cloud API Token. RECOMMENDED: replace with github action secrets. ex. "${{ secrets.TF_API_TOKEN }}"
-      TF_WORKSPACE: "docker" ## Name of your existing workspace in Terraform Cloud.
-      CONFIG_DIRECTORY: "docker/terraform/" ## Directory of your Terraform Configuration. Relative to the project root.
+      TF_WORKSPACE: "infra" ## Name of your existing workspace in Terraform Cloud.
+      CONFIG_DIRECTORY: "terraform/" ## Directory of your Terraform Configuration. Relative to the project root.
     steps:
       - uses: actions/checkout@v3
 
