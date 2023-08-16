@@ -3,10 +3,29 @@ run-name: Publish Docker tag
 on: [push]
 jobs:
   Publish-Docker:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Build the tagged Docker image
         working-directory: ./docker
         run: docker build -t tasky .
+
+
+  # retrieve-secret:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   steps:
+  #     - name: Retrieve secret from Vault
+  #       uses: hashicorp/vault-action@v2.4.0
+  #         with:
+  #           method: jwt
+  #           url: <Vault URL>
+  #           role: <Role name>
+  #           secrets: <Secret-Path>
+
+  #     - name: Use secret from Vault
+  #       run: |
+  #         # This step has access to the secret retrieved above; see hashicorp/vault-action for more details.
