@@ -7,7 +7,7 @@ data "tfe_outputs" "infra" {
 }
 
 provider "aws" {
-  region = "us-west-2"
+  region = data.tfe_outputs.infra.values.region
 }
 
 data "aws_eks_cluster" "default" {
