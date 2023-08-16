@@ -16,10 +16,10 @@ spec:
     spec:
       containers:
       - name: tasky
-        image: 145875822064.dkr.ecr.us-west-2.amazonaws.com/tasky
+        image: ${docker_tag}
         env:
         - name: MONGODB_URI
-          value: mongodb://username:password@10.0.3.245:27017
+          value: mongodb://${mongo_username}:${mongo_password}@${mongo_ip}:27017
         - name: SECRET_KEY
           value: secret123
         ports:
