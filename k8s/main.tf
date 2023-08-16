@@ -58,7 +58,7 @@ resource "kubernetes_deployment" "tasky" {
           name  = "tasky"
           env {
             name  = "MONGODB_URI"
-            value = "mongodb://${data.tfe_outputs.infra.values.mongo_username}:${data.tfe_outputs.infra.values.mongo_password}@${data.tfe_outputs.infra.values.db_instance_private_ip}:27017"
+            value = "mongodb://${data.tfe_outputs.infra.values.mongodb_username}:${data.tfe_outputs.infra.values.mongodb_password}@${data.tfe_outputs.infra.values.db_instance_private_ip}:27017"
           }
           env {
             name  = "SECRET_KEY"
