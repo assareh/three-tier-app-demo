@@ -73,6 +73,12 @@ resource "kubernetes_deployment" "tasky" {
   }
 }
 
+resource "kubernetes_service_account" "tasky" {
+  metadata {
+    name = "tasky"
+  }
+}
+
 resource "kubernetes_service" "tasky" {
   metadata {
     name = "tasky-service-loadbalancer"
@@ -90,8 +96,12 @@ resource "kubernetes_service" "tasky" {
   }
 }
 
-resource "kubernetes_service_account" "tasky" {
+data "kubernetes_service" "tasky" {
   metadata {
-    name = "tasky"
+    name = "tasky-service-loadbalancer"
   }
+}
+
+output "lb_address" {
+  value = data.kubernetes_service.tasky.status.0.load_balancer.0.ingress.0.hostname
 }
