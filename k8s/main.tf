@@ -2,7 +2,7 @@ variable "TFC_ORG" {}
 variable "TFC_WORKSPACE" {}
 
 data "tfe_outputs" "infra" {
-  organization = var.TFC
+  organization = var.TFC_ORG
   workspace    = var.TFC_WORKSPACE
 }
 
