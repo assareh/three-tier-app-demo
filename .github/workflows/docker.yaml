@@ -22,7 +22,6 @@ jobs:
         working-directory: ./docker
         run: |
             docker build -t tasky .
-            echo ${{ vars.DOCKER_TAG }}
-            aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ${{ vars.DOCKER_TAG }}
-            docker tag tasky:latest ${{ vars.DOCKER_TAG }}
-            docker push ${{ vars.DOCKER_TAG }}
+            aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ${{ env.DOCKER_TAG }}
+            docker tag tasky:latest ${{ env.DOCKER_TAG }}
+            docker push ${{ env.DOCKER_TAG }}
