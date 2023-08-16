@@ -29,7 +29,7 @@ on:
 
 jobs:
   Terraform-K8s-Resources:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     ## OPTIONAL: can scope variables to this specific job
     ## Example:
     env:

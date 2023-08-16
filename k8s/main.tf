@@ -72,3 +72,26 @@ resource "kubernetes_deployment" "tasky" {
     }
   }
 }
+
+resource "kubernetes_service" "tasky" {
+  metadata {
+    name = "tasky-service-loadbalancer"
+  }
+  spec {
+    selector = {
+      app = "tasky"
+    }
+    port {
+      port        = 80
+      target_port = 8080
+    }
+
+    type = "LoadBalancer"
+  }
+}
+
+resource "kubernetes_service_account" "tasky" {
+  metadata {
+    name = "tasky"
+  }
+}
