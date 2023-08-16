@@ -6,6 +6,10 @@ data "tfe_outputs" "infra" {
   workspace    = var.TFC_WORKSPACE
 }
 
+provider "aws" {
+  region = "us-west-2"
+}
+
 data "aws_eks_cluster" "default" {
   name = data.tfe_outputs.infra.values.cluster_name
 }
