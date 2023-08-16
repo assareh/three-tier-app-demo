@@ -28,7 +28,7 @@ on:
   # TF_MAX_TIMEOUT: "30m" ## If you wish to override the default "1h"
 
 jobs:
-  Terraform-Container-Registry:
+  Terraform-App-Infra:
     runs-on: ubuntu-latest
     ## OPTIONAL: can scope variables to this specific job
     ## Example:
