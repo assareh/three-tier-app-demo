@@ -129,5 +129,4 @@ output "lb_address" {
     data.kubernetes_service.tasky
   ]
 }
-
 # add a check
