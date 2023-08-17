@@ -12,7 +12,7 @@ on:
 
 jobs:
   Publish-Docker-Tag:
-    runs-on: self-hosted
+    runs-on: self-hosted # needs to be on self hosted so it can get AWS creds 
     env:
       DOCKER_TAG: "${{ vars.ECR_URL }}"
     steps:
