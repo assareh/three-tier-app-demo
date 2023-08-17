@@ -1,5 +1,25 @@
 provider "aws" {
-  region = "us-west-2"
+  region = var.region
+
+  assume_role {
+    role_arn     = var.aws_role_arn
+    session_name = var.TFC_RUN_ID
+  }
+}
+
+variable "aws_role_arn" {
+  description = "Amazon Resource Name of the role to be assumed (this was created in the producer workspace)"
+}
+
+variable "region" {
+  description = "The region where the resources are created."
+  default     = "us-west-2"
+}
+
+variable "TFC_RUN_ID" {
+  type        = string
+  description = "Terraform Cloud automatically injects a unique identifier for this run."
+  default     = "terraform"
 }
 
 data "aws_caller_identity" "current" {}

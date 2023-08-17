@@ -1,5 +1,10 @@
 provider "aws" {
   region = var.region
+
+  assume_role {
+    role_arn     = var.aws_role_arn
+    session_name = var.TFC_RUN_ID
+  }
 }
 
 resource "random_pet" "suffix" {}

@@ -1,5 +1,15 @@
 variable "TFC_ORG" {}
 
+variable "aws_role_arn" {
+  description = "Amazon Resource Name of the role to be assumed (this was created in the producer workspace)"
+}
+
+variable "TFC_RUN_ID" {
+  type        = string
+  description = "Terraform Cloud automatically injects a unique identifier for this run."
+  default     = "terraform"
+}
+
 data "tfe_outputs" "infra" {
   organization = var.TFC_ORG
   workspace    = "infra"
@@ -12,6 +22,11 @@ data "tfe_outputs" "docker" {
 
 provider "aws" {
   region = data.tfe_outputs.infra.values.region
+
+  assume_role {
+    role_arn     = var.aws_role_arn
+    session_name = var.TFC_RUN_ID
+  }
 }
 
 data "aws_caller_identity" "current" {}
