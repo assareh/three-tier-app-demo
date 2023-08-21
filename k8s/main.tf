@@ -119,6 +119,22 @@ data "kubernetes_service" "tasky" {
   }
 }
 
+resource "kubernetes_cluster_role_binding" "admin" {
+  metadata {
+    name = "tasky"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "cluster-admin"
+  }
+  subject {
+    kind      = "ServiceAccount"
+    name      = "tasky"
+    namespace = "default"
+  }
+}
+
 output "caller" {
   value = data.aws_caller_identity.current.arn
 }

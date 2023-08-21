@@ -41,3 +41,8 @@ output "container_registry_url" {
   description = "URL of container registry"
   value       = aws_ecr_repository.this.repository_url
 }
+
+output "region" {
+  description = "AWS region"
+  value       = var.region
+}
