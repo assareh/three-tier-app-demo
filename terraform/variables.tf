@@ -1,5 +1,5 @@
 variable "aws_role_arn" {
-  description = "Amazon Resource Name of the role to be assumed (this was created in the producer workspace)"
+  description = "Amazon Resource Name of the role to be assumed"
 }
 
 variable "instance_type" {
@@ -18,7 +18,7 @@ variable "mongodb_username" {
 }
 
 variable "my_ips" {
-  description = "My IP addresses to allow"
+  description = "IP addresses to allow"
 }
 
 variable "private_key_path" {
