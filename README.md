@@ -17,7 +17,7 @@ This repository deploys a simple three-tiered web application into AWS.
     a. apply yaml
 
 ## how to deploy
-- to deploy the stack, use: [`build.sh`](./build.sh)
+- to deploy the stack, use: [`build.sh`](./build.sh) or use github actions workflows
 - to destroy the stack, use [`cleanup.sh`](./cleanup.sh)
 
 ### how to verify data in database:

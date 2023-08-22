@@ -1,21 +1,38 @@
 #!/bin/bash
+# usage: ./build.sh <AWS provisioning role to assume>
+AWS_TERRAFORM_ROLE=$1
+
+if [ $# -lt 1 ]
+  then
+    echo "Missing required argument, see usage."
+  else
 
 echo "Docker..."
-cd docker
-terraform apply -auto-approve
-docker build -t tasky .
+cd docker/terraform
+terraform init && terraform apply -auto-approve -var aws_role_arn=$AWS_TERRAFORM_ROLE
 DOCKER_TAG=$(terraform output -raw container_registry_url)
+aws ecr get-login-password --region $(terraform output -raw region) | docker login --username AWS --password-stdin $DOCKER_TAG
+cd ..
+docker build -t tasky .
 docker tag tasky:latest $DOCKER_TAG
 docker push $DOCKER_TAG
 
 echo "Terraform..."
 cd ../terraform
-terraform apply -auto-approve -var my_ip=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)/32
+cat > myip.tfvars <<EOF
+my_ips=["$(echo $(dig +short txt ch whoami.cloudflare @1.0.0.1) | jq -r)/32"]
+EOF
+
+terraform init && terraform apply -auto-approve -var-file="myip.tfvars" -var aws_role_arn=$AWS_TERRAFORM_ROLE
 MONGO_IP=$(terraform output -raw db_instance_private_ip)
 MONGO_USERNAME=$(terraform output -raw mongodb_username)
 MONGO_PASSWORD=$(terraform output -raw mongodb_password)
-aws eks --region $(terraform output -raw region) update-kubeconfig \
-    --name $(terraform output -raw cluster_name)
+aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
+
+AWS=$(aws sts assume-role --role-arn $AWS_TERRAFORM_ROLE --output json --role-session-name AWSCLI-Session)
+export AWS_ACCESS_KEY_ID=$(echo $AWS | jq -r '.Credentials''.AccessKeyId')
+export AWS_SECRET_ACCESS_KEY=$(echo $AWS | jq -r '.Credentials''.SecretAccessKey')
+export AWS_SESSION_TOKEN=$(echo $AWS | jq -r '.Credentials''.SessionToken')
 
 echo "Kubernetes..."
 cd ../k8s
@@ -87,3 +104,5 @@ do
 done
 
 open http://$lb_address/
+
+fi
