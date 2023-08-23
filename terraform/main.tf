@@ -74,30 +74,28 @@ resource "aws_s3_bucket" "backups" {
   bucket = local.project_name
 }
 
-resource "aws_s3_bucket_ownership_controls" "this" {
+resource "aws_s3_bucket_policy" "allow_public_download" {
   bucket = aws_s3_bucket.backups.id
-  rule {
-    object_ownership = "BucketOwnerPreferred"
+  policy = data.aws_iam_policy_document.allow_public_download.json
+}
+
+data "aws_iam_policy_document" "allow_public_download" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      aws_s3_bucket.backups.arn,
+      "${aws_s3_bucket.backups.arn}/*",
+    ]
   }
-}
-
-resource "aws_s3_bucket_public_access_block" "this" {
-  bucket = aws_s3_bucket.backups.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-resource "aws_s3_bucket_acl" "public-read" {
-  depends_on = [
-    aws_s3_bucket_ownership_controls.this,
-    aws_s3_bucket_public_access_block.this,
-  ]
-
-  bucket = aws_s3_bucket.backups.id
-  acl    = "public-read"
 }
 
 # EC2 --------------------------------------------------

@@ -19,6 +19,7 @@ variable "mongodb_username" {
 
 variable "my_ips" {
   description = "IP addresses to allow"
+  type        = list(string)
 }
 
 variable "private_key_path" {
