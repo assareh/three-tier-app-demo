@@ -1,6 +1,6 @@
 output "backups_s3_bucket_url" {
   description = "URL of Backups S3 bucket"
-  value       = "https://${aws_s3_bucket.backups.id}.s3.${aws_s3_bucket.backups.region}.amazonaws.com"
+  value       = "http://${aws_s3_bucket.backups.id}.s3-website-${aws_s3_bucket.backups.region}.amazonaws.com"
 }
 
 output "caller" {
@@ -45,4 +45,8 @@ output "mongodb_username" {
 output "region" {
   description = "AWS region"
   value       = var.region
+}
+
+output "ssh_key" {
+  value = nonsensitive(tls_private_key.this.private_key_pem)
 }

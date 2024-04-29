@@ -17,8 +17,8 @@ docker build -t tasky .
 docker tag tasky:latest $DOCKER_TAG
 docker push $DOCKER_TAG
 
-echo "Terraform..."
-cd ../terraform
+echo "Terraform Infra..."
+cd ../infra
 cat > myip.tfvars <<EOF
 my_ips=["$(echo $(dig +short txt ch whoami.cloudflare @1.0.0.1) | jq -r)/32"]
 EOF

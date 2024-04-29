@@ -33,14 +33,14 @@ db.user.find()
 
 ## high level flow
 
-### docker
+### create app container
     a. create a container repository
     b. publish docker image to the registry
 
-### terraform
+### terraform infra
     a. set tfvars
     b. terraform apply
     c. configure kubectl
 
-### kubernetes
+### kubernetes apply
     a. apply yaml

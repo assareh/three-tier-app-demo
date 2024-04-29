@@ -73,6 +73,15 @@ resource "aws_s3_bucket" "backups" {
   bucket = "${local.project_name}-backups"
 }
 
+resource "aws_s3_bucket_public_access_block" "this" {
+  bucket = aws_s3_bucket.backups.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
 resource "aws_s3_bucket_policy" "allow_public_download" {
   bucket = aws_s3_bucket.backups.id
   policy = data.aws_iam_policy_document.allow_public_download.json
@@ -80,6 +89,8 @@ resource "aws_s3_bucket_policy" "allow_public_download" {
 
 data "aws_iam_policy_document" "allow_public_download" {
   statement {
+    sid = "PublicRead"
+
     principals {
       type        = "AWS"
       identifiers = ["*"]
@@ -97,10 +108,30 @@ data "aws_iam_policy_document" "allow_public_download" {
   }
 }
 
+resource "aws_s3_bucket_website_configuration" "index" {
+  bucket = aws_s3_bucket.backups.id
+  index_document {
+    suffix = "index.html"
+  }
+}
+
+resource "aws_s3_bucket_cors_configuration" "this" {
+  bucket = aws_s3_bucket.backups.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET"]
+    allowed_origins = ["http://${aws_s3_bucket.backups.id}.s3-website-${aws_s3_bucket.backups.region}.amazonaws.com"]
+    expose_headers  = ["x-amz-server-side-encryption", "x-amz-request-id", "x-amz-id-2"]
+    max_age_seconds = 3000
+  }
+}
+
 resource "aws_s3_object" "index_html" {
   bucket         = aws_s3_bucket.backups.id
   key            = "index.html"
   content_base64 = data.http.index_html.response_body_base64
+  content_type   = "text/html"
 }
 
 data "http" "index_html" {
@@ -334,18 +365,6 @@ data "aws_iam_policy_document" "db" {
 }
 
 # CONFIG --------------------------------------------------
-resource "aws_config_configuration_recorder_status" "this" {
-  name       = aws_config_configuration_recorder.this.name
-  is_enabled = true
-
-  depends_on = [aws_config_delivery_channel.this]
-}
-
-resource "aws_iam_role_policy_attachment" "config" {
-  role       = aws_iam_role.config.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
-}
-
 resource "aws_s3_bucket" "config" {
   bucket = "${local.project_name}-config"
 }
@@ -359,6 +378,20 @@ resource "aws_config_configuration_recorder" "this" {
   name     = local.project_name
   role_arn = aws_iam_role.config.arn
 }
+
+resource "aws_config_configuration_recorder_status" "this" {
+  name       = aws_config_configuration_recorder.this.name
+  is_enabled = true
+
+  depends_on = [aws_config_delivery_channel.this]
+}
+
+resource "aws_iam_role_policy_attachment" "config" {
+  role       = aws_iam_role.config.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
+}
+
+
 
 data "aws_iam_policy_document" "assume_role_config" {
   statement {
@@ -410,4 +443,6 @@ resource "aws_config_aggregate_authorization" "account" {
 
 module "fedramp_config_rules" {
   source = "github.com/18F/identity-terraform/config_fedramp_conformance"
+
+  depends_on = [aws_config_delivery_channel.this]
 }

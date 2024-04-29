@@ -16,8 +16,8 @@ echo "Kubernetes..."
 cd k8s
 kubectl delete -f tasky-deployment.yaml
 
-echo "Terraform..."
-cd ../terraform
+echo "Terraform Infra..."
+cd ../infra
 terraform destroy -auto-approve -var-file="myip.tfvars" -var aws_role_arn=$AWS_TERRAFORM_ROLE
 
 echo "Docker..."
