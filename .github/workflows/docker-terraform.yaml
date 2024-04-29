@@ -8,6 +8,7 @@
 name: Docker Terraform Registry
 run-name: Create container registry by @${{ github.actor }}
 on:
+  workflow_dispatch:
   push:
     branches:
     ## RECOMMENDED: Change for your target branch, or include branches you wish to trigger this workflow file.
