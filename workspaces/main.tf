@@ -68,7 +68,7 @@ resource "tfe_variable" "kubernetes_tfc_org" {
 
 resource "tfe_variable" "kubernetes_tfc_token" {
   key          = "TFE_TOKEN"
-  value        = var.my_org
+  value        = var.my_tfc_token
   category     = "env"
   sensitive    = true
   workspace_id = tfe_workspace.kubernetes.id
