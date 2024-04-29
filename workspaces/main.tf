@@ -16,6 +16,8 @@ resource "tfe_workspace" "docker" {
   organization      = "angryhippo"
   project_id        = tfe_project.three-tier-app-demo.id
   terraform_version = "latest"
+
+  auto_apply = true
 }
 
 resource "tfe_workspace" "infra" {
@@ -24,6 +26,8 @@ resource "tfe_workspace" "infra" {
   organization      = "angryhippo"
   project_id        = tfe_project.three-tier-app-demo.id
   terraform_version = "latest"
+
+  auto_apply = true
 }
 
 resource "tfe_workspace" "kubernetes" {
@@ -32,6 +36,8 @@ resource "tfe_workspace" "kubernetes" {
   organization      = "angryhippo"
   project_id        = tfe_project.three-tier-app-demo.id
   terraform_version = "latest"
+
+  auto_apply = true
 }
 
 resource "tfe_variable" "docker_aws_role_arn" {
