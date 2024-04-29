@@ -5,7 +5,7 @@
 # **IF** the set paths contain files that have changed.
 #
 ---
-name: Terraform
+name: 03 Terraform
 run-name: Create app infrastructure by @${{ github.actor }}
 on:
   workflow_dispatch:

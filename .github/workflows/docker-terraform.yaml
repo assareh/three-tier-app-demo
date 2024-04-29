@@ -5,7 +5,7 @@
 # **IF** the set paths contain files that have changed.
 #
 ---
-name: Docker Terraform Registry
+name: 01 Docker Terraform Registry
 run-name: Create container registry by @${{ github.actor }}
 on:
   workflow_dispatch:

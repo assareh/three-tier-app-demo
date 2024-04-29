@@ -5,7 +5,7 @@
 # **IF** the set paths contain files that have changed.
 #
 ---
-name: Kubernetes
+name: 04 Kubernetes
 run-name: Create kubernetes resources by @${{ github.actor }}
 on:
   workflow_dispatch:

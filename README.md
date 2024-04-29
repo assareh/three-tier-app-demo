@@ -8,10 +8,15 @@ This repository deploys a simple three-tiered web application into AWS.
 - to deploy the stack, run the Actions workflows or use: [`deploy.sh`](./deploy.sh)
 - to destroy the stack, run the Actions workflows or use [`destroy.sh`](./destroy.sh)
 
-### prerequisites
+### prerequisites for local runs
 - docker running locally
 - terraform cli installed
 - AWS credentials loaded in environment
+- AWS role created for terraforming
+
+### prerequisites for github actions runs
+- self-hosted actions runner
+- terraform cloud api token
 - AWS role created for terraforming
 
 ### how to verify data in database:

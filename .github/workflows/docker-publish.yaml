@@ -1,5 +1,5 @@
 ---
-name: Docker Publish
+name: 02 Docker Publish
 run-name: Publish Docker tag to registry by @${{ github.actor }}
 on:
   workflow_dispatch:
