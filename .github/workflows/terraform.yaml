@@ -8,6 +8,7 @@
 name: Terraform
 run-name: Create app infrastructure by @${{ github.actor }}
 on:
+  workflow_dispatch:
   push:
     branches:
     ## RECOMMENDED: Change for your target branch, or include branches you wish to trigger this workflow file.
