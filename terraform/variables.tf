@@ -17,11 +17,6 @@ variable "mongodb_username" {
   default     = "username"
 }
 
-variable "my_ips" {
-  description = "IP addresses to allow"
-  type        = list(string)
-}
-
 variable "private_key_path" {
   description = "local path for private key file"
   default     = "~/.ssh/"

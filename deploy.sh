@@ -1,5 +1,5 @@
 #!/bin/bash
-# usage: ./build.sh <AWS provisioning role to assume>
+# usage: ./deploy.sh <AWS provisioning role to assume>
 AWS_TERRAFORM_ROLE=$1
 
 if [ $# -lt 1 ]

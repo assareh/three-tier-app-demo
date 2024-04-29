@@ -47,10 +47,9 @@ module "eks" {
   cluster_name    = local.project_name
   cluster_version = "1.27"
 
-  vpc_id                               = module.vpc.vpc_id
-  subnet_ids                           = module.vpc.private_subnets
-  cluster_endpoint_public_access       = true
-  cluster_endpoint_public_access_cidrs = var.my_ips
+  vpc_id                         = module.vpc.vpc_id
+  subnet_ids                     = module.vpc.private_subnets
+  cluster_endpoint_public_access = true
 
   eks_managed_node_group_defaults = {
     ami_type = "AL2_x86_64"
@@ -71,7 +70,7 @@ module "eks" {
 
 # S3 --------------------------------------------------
 resource "aws_s3_bucket" "backups" {
-  bucket = local.project_name
+  bucket = "${local.project_name}-backups"
 }
 
 resource "aws_s3_bucket_policy" "allow_public_download" {
@@ -98,6 +97,16 @@ data "aws_iam_policy_document" "allow_public_download" {
   }
 }
 
+resource "aws_s3_object" "index_html" {
+  bucket         = aws_s3_bucket.backups.id
+  key            = "index.html"
+  content_base64 = data.http.index_html.response_body_base64
+}
+
+data "http" "index_html" {
+  url = "https://raw.githubusercontent.com/qoomon/aws-s3-bucket-browser/master/index.html"
+}
+
 # EC2 --------------------------------------------------
 resource "aws_security_group" "db" {
   name = "${local.project_name}-db"
@@ -115,7 +124,7 @@ resource "aws_security_group" "db" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = var.my_ips
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -284,7 +293,7 @@ resource "aws_iam_role" "db" {
 }
 
 resource "aws_iam_role_policy" "db" {
-  name   = local.project_name
+  name   = "${local.project_name}-db"
   role   = aws_iam_role.db.id
   policy = data.aws_iam_policy_document.db.json
 }
@@ -322,4 +331,83 @@ data "aws_iam_policy_document" "db" {
     ]
     resources = ["*"]
   }
+}
+
+# CONFIG --------------------------------------------------
+resource "aws_config_configuration_recorder_status" "this" {
+  name       = aws_config_configuration_recorder.this.name
+  is_enabled = true
+
+  depends_on = [aws_config_delivery_channel.this]
+}
+
+resource "aws_iam_role_policy_attachment" "config" {
+  role       = aws_iam_role.config.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
+}
+
+resource "aws_s3_bucket" "config" {
+  bucket = "${local.project_name}-config"
+}
+
+resource "aws_config_delivery_channel" "this" {
+  name           = local.project_name
+  s3_bucket_name = aws_s3_bucket.config.bucket
+}
+
+resource "aws_config_configuration_recorder" "this" {
+  name     = local.project_name
+  role_arn = aws_iam_role.config.arn
+}
+
+data "aws_iam_policy_document" "assume_role_config" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["config.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "config" {
+  name               = "${local.project_name}-config"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_config.json
+}
+
+data "aws_iam_policy_document" "config" {
+  statement {
+    effect  = "Allow"
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.config.arn,
+      "${aws_s3_bucket.config.arn}/*"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "config" {
+  name   = "${local.project_name}-config"
+  role   = aws_iam_role.config.id
+  policy = data.aws_iam_policy_document.config.json
+}
+
+resource "aws_config_configuration_aggregator" "account" {
+  name = local.project_name
+
+  account_aggregation_source {
+    account_ids = [data.aws_caller_identity.current.account_id]
+    regions     = [var.region]
+  }
+}
+
+resource "aws_config_aggregate_authorization" "account" {
+  account_id = data.aws_caller_identity.current.account_id
+  region     = var.region
+}
+
+module "fedramp_config_rules" {
+  source = "github.com/18F/identity-terraform/config_fedramp_conformance"
 }
