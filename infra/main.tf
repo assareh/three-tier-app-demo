@@ -441,8 +441,79 @@ resource "aws_config_aggregate_authorization" "account" {
   region     = var.region
 }
 
-module "fedramp_config_rules" {
-  source = "github.com/18F/identity-terraform/config_fedramp_conformance"
+resource "aws_config_conformance_pack" "sec_eks" {
+  name          = "Security-Best-Practices-for-EKS"
+  template_body = data.http.sec_eks.response_body
 
-  depends_on = [aws_config_delivery_channel.this]
+  depends_on = [aws_config_configuration_recorder.this]
+}
+
+data "http" "sec_eks" {
+  url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Security-Best-Practices-for-EKS.yaml"
+}
+
+resource "aws_config_conformance_pack" "sec_ecr" {
+  name          = "Security-Best-Practices-for-ECR"
+  template_body = data.http.sec_ecr.response_body
+
+  depends_on = [aws_config_configuration_recorder.this]
+}
+
+data "http" "sec_ecr" {
+  url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Security-Best-Practices-for-ECR.yaml"
+}
+
+resource "aws_config_conformance_pack" "ops_devops" {
+  name          = "Operational-Best-Practices-for-DevOps"
+  template_body = data.http.ops_devops.response_body
+
+  depends_on = [aws_config_configuration_recorder.this]
+}
+
+data "http" "ops_devops" {
+  url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Operational-Best-Practices-for-DevOps.yaml"
+}
+
+resource "aws_config_conformance_pack" "ops_ec2" {
+  name          = "Operational-Best-Practices-for-EC2"
+  template_body = data.http.ops_ec2.response_body
+
+  depends_on = [aws_config_configuration_recorder.this]
+}
+
+data "http" "ops_ec2" {
+  url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Operational-Best-Practices-for-EC2.yaml"
+}
+
+resource "aws_config_conformance_pack" "ops_s3" {
+  name          = "Operational-Best-Practices-for-S3"
+  template_body = data.http.ops_s3.response_body
+
+  depends_on = [aws_config_configuration_recorder.this]
+}
+
+data "http" "ops_s3" {
+  url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Operational-Best-Practices-for-Amazon-S3.yaml"
+}
+
+resource "aws_config_conformance_pack" "ops_cis_14_l1" {
+  name          = "Operational-Best-Practices-for-CIS-AWS-Foundations-Benchmark-Level-1"
+  template_body = data.http.ops_cis_14_l1.response_body
+
+  depends_on = [aws_config_configuration_recorder.this]
+}
+
+data "http" "ops_cis_14_l1" {
+  url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Operational-Best-Practices-for-CIS-AWS-v1.4-Level1.yaml"
+}
+
+resource "aws_config_conformance_pack" "ops_cis_14_l2" {
+  name          = "Operational-Best-Practices-for-CIS-AWS-Foundations-Benchmark-Level-2"
+  template_body = data.http.ops_cis_14_l2.response_body
+
+  depends_on = [aws_config_configuration_recorder.this]
+}
+
+data "http" "ops_cis_14_l2" {
+  url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Operational-Best-Practices-for-CIS-AWS-v1.4-Level2.yaml"
 }

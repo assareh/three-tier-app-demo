@@ -19,11 +19,7 @@ docker push $DOCKER_TAG
 
 echo "Terraform Infra..."
 cd ../infra
-cat > myip.tfvars <<EOF
-my_ips=["$(echo $(dig +short txt ch whoami.cloudflare @1.0.0.1) | jq -r)/32"]
-EOF
-
-terraform init && terraform apply -auto-approve -var-file="myip.tfvars" -var aws_role_arn=$AWS_TERRAFORM_ROLE
+terraform init && terraform apply -auto-approve -var aws_role_arn=$AWS_TERRAFORM_ROLE
 MONGO_IP=$(terraform output -raw db_instance_private_ip)
 MONGO_USERNAME=$(terraform output -raw mongodb_username)
 MONGO_PASSWORD=$(terraform output -raw mongodb_password)

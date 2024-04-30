@@ -18,7 +18,7 @@ kubectl delete -f tasky-deployment.yaml
 
 echo "Terraform Infra..."
 cd ../infra
-terraform destroy -auto-approve -var-file="myip.tfvars" -var aws_role_arn=$AWS_TERRAFORM_ROLE
+terraform destroy -auto-approve -var aws_role_arn=$AWS_TERRAFORM_ROLE
 
 echo "Docker..."
 cd ../docker/terraform
