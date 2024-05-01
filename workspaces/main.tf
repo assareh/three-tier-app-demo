@@ -8,6 +8,7 @@ provider "tfe" {
 resource "tfe_project" "three-tier-app-demo" {
   name         = "three-tier-app-demo"
   organization = var.my_org
+  description  = "https://github.com/assareh/three-tier-app-demo"
 }
 
 resource "tfe_workspace" "docker" {
