@@ -13,7 +13,7 @@ terraform init && terraform apply -auto-approve -var aws_role_arn=$AWS_TERRAFORM
 DOCKER_TAG=$(terraform output -raw container_registry_url)
 aws ecr get-login-password --region $(terraform output -raw region) | docker login --username AWS --password-stdin $DOCKER_TAG
 cd ..
-docker build -t tasky .
+docker build --platform linux/amd64 -t tasky .
 docker tag tasky:latest $DOCKER_TAG
 docker push $DOCKER_TAG
 
