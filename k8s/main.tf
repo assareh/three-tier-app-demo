@@ -45,12 +45,16 @@ provider "kubernetes" {
   token                  = data.aws_eks_cluster_auth.default.token
 }
 
+resource "kubernetes_namespace" "tasky" {
+  metadata {
+    name = "tasky"
+  }
+}
+
 resource "kubernetes_deployment" "tasky" {
   metadata {
-    name = "tasky-deployment"
-    labels = {
-      app = "tasky"
-    }
+    name      = "tasky-deployment"
+    namespace = "tasky"
   }
 
   spec {
@@ -70,6 +74,7 @@ resource "kubernetes_deployment" "tasky" {
       }
 
       spec {
+        service_account_name = "tasky"
         container {
           image = data.tfe_outputs.docker.values.container_registry_url
           name  = "tasky"
@@ -92,13 +97,15 @@ resource "kubernetes_deployment" "tasky" {
 
 resource "kubernetes_service_account" "tasky" {
   metadata {
-    name = "tasky"
+    name      = "tasky"
+    namespace = "tasky"
   }
 }
 
 resource "kubernetes_service" "tasky" {
   metadata {
-    name = "tasky-service-loadbalancer"
+    name      = "tasky-service-loadbalancer"
+    namespace = "tasky"
   }
   spec {
     selector = {
@@ -115,7 +122,8 @@ resource "kubernetes_service" "tasky" {
 
 data "kubernetes_service" "tasky" {
   metadata {
-    name = "tasky-service-loadbalancer"
+    name      = "tasky-service-loadbalancer"
+    namespace = "tasky"
   }
 }
 
@@ -131,8 +139,21 @@ resource "kubernetes_cluster_role_binding" "admin" {
   subject {
     kind      = "ServiceAccount"
     name      = "tasky"
-    namespace = "default"
+    namespace = "tasky"
   }
+}
+
+resource "kubernetes_secret" "example" {
+  metadata {
+    name = "basic-auth"
+  }
+
+  data = {
+    username = "admin"
+    password = "P4ssw0rd"
+  }
+
+  type = "kubernetes.io/basic-auth"
 }
 
 output "caller" {

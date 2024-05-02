@@ -9,12 +9,12 @@ variable "instance_type" {
 
 variable "mongodb_password" {
   description = "MongoDB root password"
-  default     = "password"
+  default     = "abc123"
 }
 
 variable "mongodb_username" {
   description = "MongoDB root username"
-  default     = "username"
+  default     = "root"
 }
 
 variable "private_key_path" {

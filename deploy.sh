@@ -33,12 +33,22 @@ export AWS_SESSION_TOKEN=$(echo $AWS | jq -r '.Credentials''.SessionToken')
 echo "Kubernetes..."
 cd ../k8s
 cat > tasky-deployment.yaml <<EOF           
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tasky
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tasky
+  namespace: tasky
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tasky-deployment
-  labels:
-    app: tasky
+  namespace: tasky
 spec:
   replicas: 2
   selector:
@@ -49,6 +59,7 @@ spec:
       labels:
         app: tasky
     spec:
+      serviceAccountName: tasky
       containers:
       - name: tasky
         image: $DOCKER_TAG
@@ -64,6 +75,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: tasky-service-loadbalancer
+  namespace: tasky
 spec:
   type: LoadBalancer
   selector:
@@ -74,20 +86,37 @@ spec:
       targetPort: 8080
 ---
 apiVersion: v1
-kind: ServiceAccount
+kind: Secret
 metadata:
-  name: tasky
+  name: basic-auth
+type: kubernetes.io/basic-auth
+data:
+  username: admin
+  password: P4ssw0rd
 EOF
 kubectl apply -f tasky-deployment.yaml
-kubectl create clusterrolebinding admin \
-  --clusterrole=cluster-admin \
-  --serviceaccount=default:tasky
+
+cat > clusterrolebinding.yaml <<EOF           
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tasky
+subjects:
+  - kind: ServiceAccount
+    name: tasky
+    namespace: tasky
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+EOF
+kubectl apply -f clusterrolebinding.yaml
 
 # want to wait until the load balancer public dns is available
 lb_address=""
 while [ -z $lb_address ]; do
   echo "Waiting for load balancer..."
-  lb_address=$(kubectl get svc tasky-service-loadbalancer --template="{{range .status.loadBalancer.ingress}}{{.hostname}}{{end}}")
+  lb_address=$(kubectl get svc tasky-service-loadbalancer --namespace tasky --template="{{range .status.loadBalancer.ingress}}{{.hostname}}{{end}}")
   [ -z "$lb_address" ] && sleep 5
 done
 echo 'Load balancer published but may take a few minutes to become ready:' && echo $lb_address

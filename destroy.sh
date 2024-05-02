@@ -14,6 +14,7 @@ if [ $# -lt 1 ]
 
 echo "Kubernetes..."
 cd k8s
+kubectl delete -f clusterrolebinding.yaml
 kubectl delete -f tasky-deployment.yaml
 
 echo "Terraform Infra..."
