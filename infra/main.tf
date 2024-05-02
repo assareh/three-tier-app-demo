@@ -228,8 +228,14 @@ set -x
 # set up mongodb
 sudo apt-get update
 sudo apt-get install -y docker.io awscli python
-sudo docker run \
+
+sudo groupadd docker
+sudo usermod -aG docker ubuntu
+
+docker run \
   -d -p 27017:27017 \
+  --name=mongodb \
+  --restart unless-stopped \
   -e MONGO_INITDB_ROOT_USERNAME=${var.mongodb_username} \
   -e MONGO_INITDB_ROOT_PASSWORD=${var.mongodb_password} \
   mongo:4.4.23
