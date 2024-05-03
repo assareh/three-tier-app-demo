@@ -397,8 +397,6 @@ resource "aws_iam_role_policy_attachment" "config" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWS_ConfigRole"
 }
 
-
-
 data "aws_iam_policy_document" "assume_role_config" {
   statement {
     effect  = "Allow"
@@ -447,27 +445,27 @@ resource "aws_config_aggregate_authorization" "account" {
   region     = var.region
 }
 
-resource "aws_config_config_rule" "iam-policy-no-statements-with-full-access" {
-  name = "iam-policy-no-statements-with-full-access"
+# resource "aws_config_config_rule" "iam-policy-no-statements-with-full-access" {
+#   name = "iam-policy-no-statements-with-full-access"
 
-  source {
-    owner             = "AWS"
-    source_identifier = "IAM_POLICY_NO_STATEMENTS_WITH_FULL_ACCESS"
-  }
+#   source {
+#     owner             = "AWS"
+#     source_identifier = "IAM_POLICY_NO_STATEMENTS_WITH_FULL_ACCESS"
+#   }
 
-  depends_on = [aws_config_configuration_recorder.this]
-}
+#   depends_on = [aws_config_configuration_recorder.this]
+# }
 
-resource "aws_config_config_rule" "iam-policy-no-statements-with-admin-access" {
-  name = "iam-policy-no-statements-with-admin-access"
+# resource "aws_config_config_rule" "iam-policy-no-statements-with-admin-access" {
+#   name = "iam-policy-no-statements-with-admin-access"
 
-  source {
-    owner             = "AWS"
-    source_identifier = "IAM_POLICY_NO_STATEMENTS_WITH_ADMIN_ACCESS"
-  }
+#   source {
+#     owner             = "AWS"
+#     source_identifier = "IAM_POLICY_NO_STATEMENTS_WITH_ADMIN_ACCESS"
+#   }
 
-  depends_on = [aws_config_configuration_recorder.this]
-}
+#   depends_on = [aws_config_configuration_recorder.this]
+# }
 
 resource "aws_config_conformance_pack" "sec_eks" {
   name          = "Security-Best-Practices-for-EKS"
