@@ -274,11 +274,11 @@ BUCKET_NAME=${aws_s3_bucket.backups.id}
 FILE_NAME=instance-backup
 
 # append timestamp
-TS_FILE_NAME=\$FILE_NAME-\$(date "+%Y.%m.%d-%H.%M.%S").img.gz
+TS_FILE_NAME=\$FILE_NAME-\$(date "+%Y.%m.%d-%H.%M.%S").tar.gz
 
 # create a backup image
 echo "Beginning drive cloning to /mnt/backups/\$TS_FILE_NAME..."
-dd if=/dev/nvme0n1p1 conv=sync,noerror bs=128K status=progress | gzip -c > /mnt/backups/\$TS_FILE_NAME
+tar -cpzf /mnt/backups/\$TS_FILE_NAME --exclude=/mnt/backups/\$TS_FILE_NAME --one-file-system /
 echo "Finished drive cloning to /mnt/backups/\$TS_FILE_NAME!"
 
 # upload to s3
@@ -447,6 +447,28 @@ resource "aws_config_aggregate_authorization" "account" {
   region     = var.region
 }
 
+resource "aws_config_config_rule" "iam-policy-no-statements-with-full-access" {
+  name = "iam-policy-no-statements-with-full-access"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "IAM_POLICY_NO_STATEMENTS_WITH_FULL_ACCESS"
+  }
+
+  depends_on = [aws_config_configuration_recorder.this]
+}
+
+resource "aws_config_config_rule" "iam-policy-no-statements-with-admin-access" {
+  name = "iam-policy-no-statements-with-admin-access"
+
+  source {
+    owner             = "AWS"
+    source_identifier = "IAM_POLICY_NO_STATEMENTS_WITH_ADMIN_ACCESS"
+  }
+
+  depends_on = [aws_config_configuration_recorder.this]
+}
+
 resource "aws_config_conformance_pack" "sec_eks" {
   name          = "Security-Best-Practices-for-EKS"
   template_body = data.http.sec_eks.response_body
@@ -458,27 +480,27 @@ data "http" "sec_eks" {
   url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Security-Best-Practices-for-EKS.yaml"
 }
 
-resource "aws_config_conformance_pack" "sec_ecr" {
-  name          = "Security-Best-Practices-for-ECR"
-  template_body = data.http.sec_ecr.response_body
+# resource "aws_config_conformance_pack" "sec_ecr" {
+#   name          = "Security-Best-Practices-for-ECR"
+#   template_body = data.http.sec_ecr.response_body
 
-  depends_on = [aws_config_configuration_recorder.this]
-}
+#   depends_on = [aws_config_configuration_recorder.this]
+# }
 
-data "http" "sec_ecr" {
-  url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Security-Best-Practices-for-ECR.yaml"
-}
+# data "http" "sec_ecr" {
+#   url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Security-Best-Practices-for-ECR.yaml"
+# }
 
-resource "aws_config_conformance_pack" "ops_devops" {
-  name          = "Operational-Best-Practices-for-DevOps"
-  template_body = data.http.ops_devops.response_body
+# resource "aws_config_conformance_pack" "ops_devops" {
+#   name          = "Operational-Best-Practices-for-DevOps"
+#   template_body = data.http.ops_devops.response_body
 
-  depends_on = [aws_config_configuration_recorder.this]
-}
+#   depends_on = [aws_config_configuration_recorder.this]
+# }
 
-data "http" "ops_devops" {
-  url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Operational-Best-Practices-for-DevOps.yaml"
-}
+# data "http" "ops_devops" {
+#   url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Operational-Best-Practices-for-DevOps.yaml"
+# }
 
 resource "aws_config_conformance_pack" "ops_ec2" {
   name          = "Operational-Best-Practices-for-EC2"
@@ -513,13 +535,13 @@ data "http" "ops_cis_14_l1" {
   url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Operational-Best-Practices-for-CIS-AWS-v1.4-Level1.yaml"
 }
 
-resource "aws_config_conformance_pack" "ops_cis_14_l2" {
-  name          = "Operational-Best-Practices-for-CIS-AWS-Foundations-Benchmark-Level-2"
-  template_body = data.http.ops_cis_14_l2.response_body
+# resource "aws_config_conformance_pack" "ops_cis_14_l2" {
+#   name          = "Operational-Best-Practices-for-CIS-AWS-Foundations-Benchmark-Level-2"
+#   template_body = data.http.ops_cis_14_l2.response_body
 
-  depends_on = [aws_config_configuration_recorder.this]
-}
+#   depends_on = [aws_config_configuration_recorder.this]
+# }
 
-data "http" "ops_cis_14_l2" {
-  url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Operational-Best-Practices-for-CIS-AWS-v1.4-Level2.yaml"
-}
+# data "http" "ops_cis_14_l2" {
+#   url = "https://raw.githubusercontent.com/awslabs/aws-config-rules/master/aws-config-conformance-packs/Operational-Best-Practices-for-CIS-AWS-v1.4-Level2.yaml"
+# }
