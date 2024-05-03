@@ -143,6 +143,16 @@ resource "kubernetes_cluster_role_binding" "admin" {
   }
 }
 
+resource "kubernetes_secret" "example_token" {
+  metadata {
+    name = "api-token"
+  }
+
+  data = {
+    token = "1U5VMaLzzNR1NJzpTZN40Q75AWhUTK5Kl8bCUC"
+  }
+}
+
 resource "kubernetes_secret" "example" {
   metadata {
     name = "basic-auth"
